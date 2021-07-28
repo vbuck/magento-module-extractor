@@ -101,6 +101,7 @@ class Extractor
      * @param string $name
      * @param string $message
      * @param string $tmpPath
+     * @param string $installPath
      * @return array
      */
     private function createMutableResult(
@@ -109,7 +110,8 @@ class Extractor
         bool $state = false,
         string $name = '',
         string $message = '',
-        string $tmpPath = ''
+        string $tmpPath = '',
+        string $installPath = ''
     ) : array {
         return [
             'id' => $id,
@@ -118,6 +120,7 @@ class Extractor
             'name' => $name,
             'message' => $message,
             'tmp_path' => $tmpPath,
+            'install_path' => $installPath,
         ];
     }
 
@@ -139,14 +142,15 @@ class Extractor
 
         $finalPath = $this->getModulePath($workPath, $result);
         // Assumes contents are always extracted with a container directory
-        $innerPath = \current(\glob($workPath . DIRECTORY_SEPARATOR . '*')) . DIRECTORY_SEPARATOR;
+        $innerPath = \current(\glob($workPath . DIRECTORY_SEPARATOR . '*')) . DIRECTORY_SEPARATOR . '*';
         if (!$finalPath) {
             return false;
         }
 
         return !\shell_exec(\sprintf('mkdir -p %s', $finalPath))
             && !\shell_exec(\sprintf('cp -rf %s %s', $innerPath, $finalPath))
-            && !\shell_exec(\sprintf('rm -rf %s', $workPath));
+            && !\shell_exec(\sprintf('rm -rf %s', $workPath))
+            && (bool) $result['install_path'] = $finalPath;
     }
 
     /**
